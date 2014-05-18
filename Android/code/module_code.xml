@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_code" default="compile.module.code">
+  <dirname property="module.code.basedir" file="${ant.file.module_code}"/>
+  
+  <property name="module.jdk.home.code" value="${jdk.home.android_api_19_platform}"/>
+  <property name="module.jdk.bin.code" value="${jdk.bin.android_api_19_platform}"/>
+  <property name="module.jdk.classpath.code" value="jdk.classpath.android_api_19_platform"/>
+  
+  <property name="compiler.args.code" value="-encoding UTF-8 -source 1.6 ${compiler.args}"/>
+  
+  <property name="code.output.dir" value="${module.code.basedir}/../WinCredOtp/out/production/code"/>
+  <property name="code.testoutput.dir" value="${module.code.basedir}/../WinCredOtp/out/test/code"/>
+  
+  <path id="code.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="code.module.production.classpath">
+    <path refid="${module.jdk.classpath.code}"/>
+  </path>
+  
+  <path id="code.runtime.production.module.classpath">
+    <pathelement location="${code.output.dir}"/>
+  </path>
+  
+  <path id="code.module.classpath">
+    <path refid="${module.jdk.classpath.code}"/>
+    <pathelement location="${code.output.dir}"/>
+  </path>
+  
+  <path id="code.runtime.module.classpath">
+    <pathelement location="${code.testoutput.dir}"/>
+    <pathelement location="${code.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.code">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.code">
+    <patternset refid="excluded.from.module.code"/>
+  </patternset>
+  
+  <path id="code.module.sourcepath">
+    <dirset dir="${module.code.basedir}">
+      <include name="gen"/>
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.code" depends="compile.module.code.production,compile.module.code.tests" description="Compile module code"/>
+  
+  <target name="compile.module.code.production" depends="register.custom.compilers" description="Compile module code; production classes">
+    <mkdir dir="${code.output.dir}"/>
+    <javac2 destdir="${code.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.code}/javac">
+      <compilerarg line="${compiler.args.code}"/>
+      <bootclasspath refid="code.module.bootclasspath"/>
+      <classpath refid="code.module.production.classpath"/>
+      <src refid="code.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.code"/>
+    </javac2>
+    
+    <copy todir="${code.output.dir}">
+      <fileset dir="${module.code.basedir}/gen">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.code.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.code.tests" depends="register.custom.compilers,compile.module.code.production" description="compile module code; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.code" description="cleanup module">
+    <delete dir="${code.output.dir}"/>
+    <delete dir="${code.testoutput.dir}"/>
+  </target>
+</project>
