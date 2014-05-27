@@ -7,11 +7,9 @@ private:
 	int						HASH_LEN = 32;
 	int						DERIVED_KEY_LEN = 60;
 	int						ITERATION_COUNT = 12000;
-	BCRYPT_ALG_HANDLE		hAlg;
-	BCRYPT_KEY_HANDLE		secretKeyHandle;
-	BCRYPT_HASH_HANDLE		hHash;
-	PBYTE                   pbHashObject;
-	HANDLE hFile;
+	BCRYPT_ALG_HANDLE		hAlg = NULL;
+	BCRYPT_HASH_HANDLE		hHash = NULL;
+	PBYTE                   pbHashObject = NULL;
 	void Cleanup();
 public:
 	HMacSha1();

@@ -1,7 +1,11 @@
 
 #include "TotpGenerator.h"
 
+#include "log.h"
 
+using namespace Logging;
+
+extern Logger *l;
 TotpGenerator::TotpGenerator(IMac *mac, IClock *clock, IExtractPin *extractor)
 {
 	_mac = mac;
@@ -25,18 +29,22 @@ NTSTATUS TotpGenerator::GenerateTimeoutCode(PBYTE password, int pwdLen, PCHAR ot
 	char key[256];
 	char intervalTime[18];
 	char hash[256];
+
 	if (!NT_SUCCESS(status = _mac->DeriveKey(password, pwdLen, (PUCHAR)key, 32)))
 	{
 		return status;
 	}
 
 	_clock->GetIntervalTime(intervalTime, interval);
+
 	if (!NT_SUCCESS(status = _mac->Hash((PBYTE)intervalTime, 8, (PUCHAR)key, 32, (PUCHAR)hash)))
 	{
+		l->LogS(INFO, "GenerateTimeoutCode -> Hash -> Error %d \n", status);
 		return status;
 	}
 	;
 	_extractor->GetPin(hash, otpCode, otpCodeLen);
+	l->LogS(INFO, "All DONE.... %d \n",status);
 	return status;
 }
 

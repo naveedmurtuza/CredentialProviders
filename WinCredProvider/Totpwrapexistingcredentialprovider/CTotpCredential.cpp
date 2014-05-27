@@ -19,6 +19,10 @@
 #include "CTotpCredential.h"
 #include "CWrappedCredentialEvents.h"
 #include "guid.h"
+#include "log.h"
+
+using namespace Logging;
+Logger *l = NULL;
 
 // CSampleCredential ////////////////////////////////////////////////////////
 // NOTE: Please read the readme.txt file to understand when it's appropriate to
@@ -282,21 +286,6 @@ HRESULT CTotpCredential::GetComboBoxValueCount(
         {
             hr = _pWrappedCredential->GetComboBoxValueCount(dwFieldID, pcItems, pdwSelectedItem);
         }
-        // Otherwise determine if we need to handle it.
-        else
-        {
-            /*FIELD_STATE_PAIR *pfsp = _LookupLocalFieldStatePair(dwFieldID);
-            if (pfsp != NULL)
-            {
-                *pcItems = ARRAYSIZE(s_rgDatabases);
-                *pdwSelectedItem = _dwDatabaseIndex;
-                hr = S_OK;
-            }
-            else
-            {
-                hr = E_INVALIDARG;
-            }*/
-        }
     }
 
     return hr;
@@ -321,20 +310,6 @@ HRESULT CTotpCredential::GetComboBoxValueAt(
         {
             hr = _pWrappedCredential->GetComboBoxValueAt(dwFieldID, dwItem, ppwszItem);
         }
-        // Otherwise determine if we need to handle it.
-        else
-        {
-            /*FIELD_STATE_PAIR *pfsp = _LookupLocalFieldStatePair(dwFieldID);
-            if ((pfsp != NULL) && (dwItem < ARRAYSIZE(s_rgDatabases)))
-            {
-                hr = SHStrDupW(s_rgDatabases[dwItem], ppwszItem);
-            }
-            else
-            {
-                hr = E_INVALIDARG;
-            }*/
-
-        }
     }
 
     return hr;
@@ -356,20 +331,6 @@ HRESULT CTotpCredential::SetComboBoxSelectedValue(
         if (_IsFieldInWrappedCredential(dwFieldID))
         {
             hr = _pWrappedCredential->SetComboBoxSelectedValue(dwFieldID, dwSelectedItem);
-        }
-        // Otherwise determine if we need to handle it.
-        else
-        {
-            /*FIELD_STATE_PAIR *pfsp = _LookupLocalFieldStatePair(dwFieldID);
-            if ((pfsp != NULL) && (dwSelectedItem < ARRAYSIZE(s_rgDatabases)))
-            {
-                _dwDatabaseIndex = dwSelectedItem;
-                hr = S_OK;
-            }
-            else
-            {
-                hr = E_INVALIDARG;
-            }*/
         }
     }
 
@@ -508,12 +469,16 @@ HRESULT CTotpCredential::GetSerialization(
     )
 {
     HRESULT hr = E_UNEXPECTED;
-	
+	if (l == NULL)
+	{
+		l = new Logger();
+	}
+	l->LogS("Starting to authenticate user .... \n");
     if (_pWrappedCredential != NULL)
     {
 		if (_rgFieldStrings[SFI_OTP_CODE_EDITTEXT] && wcslen(_rgFieldStrings[SFI_OTP_CODE_EDITTEXT]) > 0)
 		{
-			//::MessageBox(NULL, _rgFieldStrings[SFI_OTP_CODE_EDITTEXT], L"CAPTION", MB_OK);
+			
 			PWSTR			username,
 				password;
 			char			pwd[100];
@@ -526,13 +491,17 @@ HRESULT CTotpCredential::GetSerialization(
 			_pWrappedCredential->GetStringValue(0, &username);
 			_pWrappedCredential->GetStringValue(3, &password);
 			size_t			pwdSize = 0;
+			
 			//::MessageBox(NULL, _otpValue, password, MB_OK);
 			wcstombs_s(&pwdSize, pwd, (size_t)100, password, wcslen(password));
 			wcstombs_s(&numOfCharConverted, otp, (size_t)100, _rgFieldStrings[SFI_OTP_CODE_EDITTEXT], wcslen(_rgFieldStrings[SFI_OTP_CODE_EDITTEXT]));
 			char tmp[100];
 			sprintf_s(tmp, 100, "%d", numOfCharConverted);
 			BOOL otpValid = FALSE;
+			//Log("password->", pwd); //hoho not good !!!
+			//Log("otp->", otp);
 			NTSTATUS status = otpGen->VerifyTimeOutCode((PBYTE)pwd, (int)pwdSize, otp,&otpValid);
+
 			if (NT_SUCCESS(status))
 			{
 				if (otpValid == TRUE)
@@ -652,3 +621,4 @@ void CTotpCredential::_CleanupEvents()
         _pCredProvCredentialEvents = NULL;
     }
 }
+

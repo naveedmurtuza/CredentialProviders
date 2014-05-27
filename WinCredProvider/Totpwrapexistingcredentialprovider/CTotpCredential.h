@@ -21,6 +21,10 @@
 #include "resource.h"
 #include "CWrappedCredentialEvents.h"
 #include "common_defs.h"
+
+
+
+
 class CTotpCredential : public ICredentialProviderCredential
 {
     public:
@@ -124,4 +128,5 @@ class CTotpCredential : public ICredentialProviderCredential
     DWORD                                _dwWrappedDescriptorCount;                      // The number of fields in our
                                                                                          // wrapped credential.
 	
+
 };
