@@ -4,6 +4,8 @@ The Totp Credential Provider adds a two step authentication to windows logon. Th
 
 ![](https://raw.githubusercontent.com/naveedmurtuza/CredentialProviders/master/WinCredProvider/screenshots/1.png)
 
+![](https://raw.githubusercontent.com/naveedmurtuza/CredentialProviders/master/screenshots/Screenshot_2014-05-27-23-49-25.png)
+
 ### Install/Uninstall
 copy OtpCredentialProvider.dll to the System32 directory and run Register.reg from an elevated command prompt.The credential should appear the next time a logon is invoked (such as when switching users).
 To uninstall just run Unregister.reg from the elevated prompt.
